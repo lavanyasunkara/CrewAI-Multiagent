@@ -3,3 +3,4 @@ crewai-tools
 python-dotenv
 yfinance
 streamlit
+litellm
