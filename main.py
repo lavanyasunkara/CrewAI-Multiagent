@@ -107,9 +107,20 @@ st.markdown("""
 
 def run(stock: str):
     """Run the stock analysis crew"""
+    import os
+    # Check if API key is set
+    if not os.getenv("GROQ_API_KEY"):
+        st.error("⚠️ GROQ_API_KEY is not set. Please add it in Streamlit Cloud secrets.")
+        return None
+    
     with st.spinner("🤖 Analyzing stock with AI crew... This may take a moment."):
-        result = stock_crew.kickoff(inputs={"stock": stock})
-    return result
+        try:
+            result = stock_crew.kickoff(inputs={"stock": stock})
+            return result
+        except Exception as e:
+            st.error(f"❌ Error during analysis: {str(e)}")
+            st.info("💡 Make sure GROQ_API_KEY is set correctly in Streamlit Cloud secrets.")
+            return None
 
 if __name__ == "__main__":
     # Main container for centering
@@ -144,12 +155,21 @@ if __name__ == "__main__":
     if analyze_button:
         if stock and stock.strip():
             result = run(stock.strip().upper())
-            # Get the result text
-            result_text = str(result.raw) if hasattr(result, 'raw') else str(result)
-            # Escape HTML special characters
-            result_text = html.escape(result_text)
-            # Build the output HTML
-            output_content = f"""
+            if result is None:
+                output_content = """
+                <div class="output-section">
+                    <div style="padding: 2rem; text-align: center;">
+                        <p style="color: #b8860b; font-size: 1.1rem; font-weight: 500;">❌ Analysis failed. Please check the error message above.</p>
+                    </div>
+                </div>
+                """
+            else:
+                # Get the result text
+                result_text = str(result.raw) if hasattr(result, 'raw') else str(result)
+                # Escape HTML special characters
+                result_text = html.escape(result_text)
+                # Build the output HTML
+                output_content = f"""
             <div class="output-section">
                 <hr style="border: 1px solid #d1d5db; margin: 1rem 0;">
                 <h4 style="text-align: center; color: #16213e;">Analysis Output:</h4>

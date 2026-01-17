@@ -1,10 +1,13 @@
 from crewai import Agent,LLM
+import os
 
 from tools.stock_research_tool import get_stock_price
 
+# Configure LLM with explicit API key check
 llm = LLM(
     model = "groq/llama-3.3-70b-versatile",
-    temperature = 0
+    temperature = 0,
+    api_key = os.getenv("GROQ_API_KEY")
 )
 
 analyst_agent = Agent(
